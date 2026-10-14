@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meet Chatbot POC</title>
+
+  <script src="https://www.gstatic.com/meetjs/addons/1.1.0/meet.addons.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      color: #202124;
+    }
+
+    #messages {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    form {
+      display: flex;
+      gap: 8px;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px;
+    }
+
+    button {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #status {
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <h3>My Meet Assistant</h3>
+  <p id="status">Waiting to initialize Meet SDK...</p>
+
+  <div id="messages" aria-live="polite">
+    <p><strong>Bot:</strong> Hello! Ask me anything.</p>
+  </div>
+
+  <form id="chatForm">
+    <input id="question" placeholder="Type a message..." required>
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    // Replace this with your numeric Google Cloud project number.
+    const PROJECT_NUMBER = "My Project 48646";
+
+    async function initializeMeet() {
+      try {
+        const session = await window.meet.addon.createAddonSession({
+          cloudProjectNumber: PROJECT_NUMBER
+        });
+
+        await session.createSidePanelClient();
+
+        document.getElementById("status").textContent =
+          "Meet side panel initialized.";
+      } catch (error) {
+        console.error(error);
+        document.getElementById("status").textContent =
+          "Open this page through your installed Meet add-on to initialize the SDK.";
+      }
+    }
+
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("question");
+    const messages = document.getElementById("messages");
+
+    function addMessage(sender, message) {
+      const p = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = sender + ": ";
+      p.append(strong, document.createTextNode(message));
+      messages.appendChild(p);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const question = input.value.trim();
+      if (!question) return;
+
+      addMessage("You", question);
+      input.value = "";
+
+      addMessage("Bot", "POC response: I received your message.");
+    });
+
+    initializeMeet();
+  </script>
+</body>
+</html>
